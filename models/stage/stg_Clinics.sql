@@ -4,4 +4,4 @@ Select
     Region,
     _ingested_at,
     _source_file
- FROM STAGE_CLINICS
+ FROM Stage_Clinics

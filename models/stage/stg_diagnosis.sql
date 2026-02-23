@@ -1,4 +1,4 @@
-Select *
+Select
 diag_code,
 description,
     _ingested_at,

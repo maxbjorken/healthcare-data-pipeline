@@ -10,24 +10,22 @@ DB_PATH = "healthcare.db"
 # --- TASKS ---
 
 dict_csv_tables = {
-    "STAGE_CLINICS": "data/raw_clinics.csv",
-    "STAGE_PATIENTS": "data/raw_patients.csv",
-    "STAGE_DIAGNOSIS": "data/raw_diagnosis.csv",
-    "STAGE_DATE": "data/raw_date.csv",
-    "STAGE_VISITS": "data/raw_visits.csv",
-    "STAGE_DOCTORS": "data/raw_doctors.csv"
+    "stage_clinics": "data/raw_clinics.csv",
+    "stage_patients": "data/raw_patients.csv",
+    "stage_diagnosis": "data/raw_diagnosis.csv",
+    "stage_date": "data/raw_date.csv",
+    "stage_visits": "data/raw_visits.csv",
+    "stage_doctors": "data/raw_doctors.csv"
 }
-
 #Task for reading from csv-files and staging the data in DuckDB.
 @task(name="Stage tables from csv-files")
 def stage_tables():
     for table_name, csv_path in dict_csv_tables.items():
-        df = pl.read_csv(csv_path)
+        df = pl.read_csv(csv_path, null_values=["NULL", "null", ""]) #Handling null values in the CSV files by specifying them during the read operation. This ensures that they are correctly interpreted as nulls in the resulting DataFrame.
         df = df.with_columns([
             pl.lit(datetime.now()).alias("_ingested_at"), #Adding metadata columns to track when the data was ingested
             pl.lit(csv_path).alias("_source_file") #Adding metadata columns to track the source file for each record
         ])
-        df = pl.read_csv(csv_path, null_values=["NULL", "null", ""]) #Handling null values in the CSV files by specifying them during the read operation. This ensures that they are correctly interpreted as nulls in the resulting DataFrame.
         with duckdb.connect(DB_PATH) as con:
             con.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM df")
    

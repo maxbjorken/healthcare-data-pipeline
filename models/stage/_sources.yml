@@ -18,5 +18,5 @@ sources:
               - not_null
               - unique
               - dbt_utils.expression_is_true:
-                  expression: "visit_id != 'NULL'"
+                  expression: " != 'NULL'"
                   severity: error # Gör att pipelinen dör direkt om texten "NULL" hittas
