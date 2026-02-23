@@ -3,15 +3,27 @@ version: 2
 sources:
   - name: healthcare_source
     schema: main 
-    description: "Rådata som laddats in i DuckDB via Polars/Prefect"
+    description: "Rådata som laddats in i DuckDB via dlt/Prefect"
     tables:
-      - name: Stage_Patients
+      - name: stage_patients  # dlt sparar oftast i gemener
         description: "Råa patientdata"
+        columns:
+          - name: patient_id
+            tests:
+              - unique
+              - not_null
 
-      - name: Stage_Doctors
+      - name: stage_doctors
         description: "Råa läkardata"
 
-      - name: Stage_Visits
+      - name: stage_clinics
+        description: "Råa klinikdata"
+
+      - name: stage_diagnosis
+        description: "Råa diagnosdata"
+
+      - name: stage_visits
+        description: "Råa besöksdata"
         columns:
           - name: visit_id
             tests:
@@ -19,4 +31,7 @@ sources:
               - unique
               - dbt_utils.expression_is_true:
                   expression: " != 'NULL'"
-                  severity: error # Gör att pipelinen dör direkt om texten "NULL" hittas
+                  severity: error
+
+      - name: stage_date
+        description: "Datumdimension"

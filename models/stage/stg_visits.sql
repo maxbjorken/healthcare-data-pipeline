@@ -8,4 +8,4 @@ visit_date_key,
 amount,
     _ingested_at,
     _source_file
-FROM {{ source('healthcare_source', 'Stage_Visits') }}
+FROM {{ source('healthcare_source', 'stage_visits') }}
