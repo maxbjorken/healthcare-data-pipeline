@@ -1,5 +1,6 @@
 import polars as pl
 import duckdb
+import dlt
 from prefect import task, flow
 from datetime import datetime
 from utils import run_dbt  
@@ -18,19 +19,34 @@ dict_csv_tables = {
     "stage_doctors": "data/raw_doctors.csv"
 }
 #Task for reading from csv-files and staging the data in DuckDB.
-@task(name="Stage tables from csv-files")
-def stage_tables():
-    for table_name, csv_path in dict_csv_tables.items():
-        df = pl.read_csv(csv_path, null_values=["NULL", "null", ""]) #Handling null values in the CSV files by specifying them during the read operation. This ensures that they are correctly interpreted as nulls in the resulting DataFrame.
-        df = df.with_columns([
-            pl.lit(datetime.now()).alias("_ingested_at"), #Adding metadata columns to track when the data was ingested
-            pl.lit(csv_path).alias("_source_file") #Adding metadata columns to track the source file for each record
-        ])
-        with duckdb.connect(DB_PATH) as con:
-            con.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM df")
-   
-    return list(dict_csv_tables.keys())
 
+
+    #Task for reading from csv-files and staging the data in DuckDB.
+@task(name="Stage tables from csv-files_dlt")
+def stage_tables():
+ 
+        pipeline = dlt.pipeline(
+            pipeline_name="healthcare_ingestion",
+            destination="duckdb", 
+            dataset_name="main"  
+        )
+
+        for table_name, csv_path in dict_csv_tables.items():
+            df = pl.read_csv(csv_path, null_values=["NULL", "null", ""])
+            
+            df = df.with_columns([
+                pl.lit(datetime.now()).alias("_ingested_at"),
+                pl.lit(csv_path).alias("_source_file")
+            ])
+
+            load_info = pipeline.run(
+                df, 
+                table_name=table_name, 
+                write_disposition="replace" 
+            )
+            print(f"Loaded {table_name}: {load_info}")
+
+        return list(dict_csv_tables.keys())
 # --- FLOW ---
 
 @flow(name="Healthcare End-to-End Pipeline")
