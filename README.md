@@ -1,6 +1,7 @@
 # Pipeline for healthcare-data.
 
 ## Architecture:
+### Dlt for transfering data
 ### Polars for dataingestion
 ### DuckDB for database
 ### Dbt for data transformation within the database
