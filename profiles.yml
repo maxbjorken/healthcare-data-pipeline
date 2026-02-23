@@ -1,0 +1,11 @@
+# profiles.yml
+healthcare_profile:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      # Ändra från /app/healthcare.db till detta:
+      path: healthcare.db 
+      extensions:
+        - parquet
+        - httpfs

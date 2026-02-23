@@ -1,0 +1,5 @@
+clinic_id,clinic_name,region
+C1,Centralen,Region Stockholm
+C2,Nordsjukhuset,Region Norr
+C3,Sydkliniken,Region Syd
+C4,Västakuten,Region Väst

@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  # --- FAKTTABELL ---
+  - name: fct_visits
+    description: "Fakttabell som innehåller alla vårdbesök (ca 160M rader). Kopplad via MD5-hashar."
+    columns:
+      - name: visit_pk
+        description: "Primärnyckel för besöket."
+        tests:
+          - unique
+          - not_null
+
+      - name: patient_fk
+        description: "Referens till dim_patients."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_patients')
+              field: patient_pk
+
+      - name: doctor_fk
+        description: "Referens till dim_doctors."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_doctors')
+              field: doctor_pk
+
+      - name: clinic_fk
+        description: "Referens till dim_clinics."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_clinics')
+              field: clinic_pk
+
+  # --- DIMENSIONER ---
+  - name: dim_patients
+    description: "Dimensionstabell för patienter."
+    columns:
+      - name: patient_pk
+        tests:
+          - unique
+          - not_null
+      - name: patient_name
+        description: "Tvättat namn (tidigare [Name])."
+
+  - name: dim_doctors
+    description: "Dimensionstabell för läkare."
+    columns:
+      - name: doctor_pk
+        tests:
+          - unique
+          - not_null
+      - name: specialty
+        tests:
+          - not_null
+
+  - name: dim_clinics
+    description: "Dimensionstabell för kliniker."
+    columns:
+      - name: clinic_pk
+        tests:
+          - unique
+          - not_null

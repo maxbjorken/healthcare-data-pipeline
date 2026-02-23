@@ -1,0 +1,5 @@
+prefect
+polars
+duckdb
+dbt-duckdb
+fastexcel  # Om du ska köra Excel-filer med Polars

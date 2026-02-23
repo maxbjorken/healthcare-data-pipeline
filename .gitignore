@@ -1,0 +1,17 @@
+# Databas
+*.db
+*.db.wal
+
+# Python
+venv/
+__pycache__/
+*.py[cod]
+
+# dbt
+target/
+dbt_packages/
+logs/
+
+# IDE & OS
+.vscode/
+.DS_Store

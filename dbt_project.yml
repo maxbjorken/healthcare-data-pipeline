@@ -1,0 +1,10 @@
+name: 'healthcare_project'
+version: '1.0.0'
+config-version: 2
+
+profile: 'healthcare_profile' # Detta måste matcha namnet i profiles.yml
+
+model-paths: ["models"]
+target-path: "target"
+clean-targets:
+  - "target"

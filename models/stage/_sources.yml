@@ -1,0 +1,22 @@
+version: 2
+
+sources:
+  - name: healthcare_source
+    schema: main 
+    description: "Rådata som laddats in i DuckDB via Polars/Prefect"
+    tables:
+      - name: Stage_Patients
+        description: "Råa patientdata"
+
+      - name: Stage_Doctors
+        description: "Råa läkardata"
+
+      - name: Stage_Visits
+        columns:
+          - name: visit_id
+            tests:
+              - not_null
+              - unique
+              - dbt_utils.expression_is_true:
+                  expression: "visit_id != 'NULL'"
+                  severity: error # Gör att pipelinen dör direkt om texten "NULL" hittas
