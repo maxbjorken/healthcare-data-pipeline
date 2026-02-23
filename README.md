@@ -7,6 +7,8 @@
 ### Dbt for data transformation within the database
 ### Prefect for orchestration
 
+![DBT Data lineage](assets/lineage-graph.png)
+
 
 ## Getting Started
 
