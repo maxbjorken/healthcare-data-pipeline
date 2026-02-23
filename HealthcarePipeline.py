@@ -2,103 +2,50 @@ import polars as pl
 import duckdb
 from prefect import task, flow
 from datetime import datetime
-from utils import run_dbt  # <--- Här hämtar du din färdiga funktion!
+from utils import run_dbt  
 
 
 DB_PATH = "healthcare.db"
 
 # --- TASKS ---
 
-@task(name="Stage clinics", retries=2)
-def stage_clinics():
-    df = pl.read_csv("data/raw_clinics.csv")
-    df = df.with_columns([
-    pl.lit(datetime.now()).alias("_ingested_at"),
-    pl.lit("raw_clinics.csv").alias("_source_file")
-])
-    with duckdb.connect(DB_PATH) as con:
-        con.execute("CREATE OR REPLACE TABLE STAGE_CLINICS AS SELECT * FROM df")
-    return "STAGE_CLINICS"
+dict_csv_tables = {
+    "STAGE_CLINICS": "data/raw_clinics.csv",
+    "STAGE_PATIENTS": "data/raw_patients.csv",
+    "STAGE_DIAGNOSIS": "data/raw_diagnosis.csv",
+    "STAGE_DATE": "data/raw_date.csv",
+    "STAGE_VISITS": "data/raw_visits.csv",
+    "STAGE_DOCTORS": "data/raw_doctors.csv"
+}
 
-@task(name="Stage patients")
-def stage_patients():
-    df = pl.read_csv("data/raw_patients.csv")
-    df = df.with_columns([
-    pl.lit(datetime.now()).alias("_ingested_at"),
-    pl.lit("raw_patients.csv").alias("_source_file")
-])
-    with duckdb.connect(DB_PATH) as con:
-        con.execute("CREATE OR REPLACE TABLE STAGE_PATIENTS AS SELECT * FROM df")
-    return "STAGE_PATIENTS"
-
-@task(name="Stage diagnosis")
-def stage_diagnosis():
-    df = pl.read_csv("data/raw_diagnosis.csv")
-    df = df.with_columns([
-    pl.lit(datetime.now()).alias("_ingested_at"),
-    pl.lit("raw_diagnosis.csv").alias("_source_file")
-])
-    with duckdb.connect(DB_PATH) as con:
-        con.execute("CREATE OR REPLACE TABLE STAGE_DIAGNOSIS AS SELECT * FROM df")
-    return "STAGE_DIAGNOSIS"
-
-@task(name="Stage date")
-def stage_date():
-    df = pl.read_csv("data/raw_date.csv")
-    df = df.with_columns([
-    pl.lit(datetime.now()).alias("_ingested_at"),
-    pl.lit("raw_date.csv").alias("_source_file")
-])
-    with duckdb.connect(DB_PATH) as con:
-        con.execute("CREATE OR REPLACE TABLE STAGE_DATE AS SELECT * FROM df")
-    return "STAGE_DATE"
-
-@task(name="Stage Visits")    
-def stage_visits():
-    df = pl.read_csv("data/raw_visits.csv")
-    df = pl.read_csv("data/raw_visits.csv", null_values=["NULL", "null", ""])
-    df = df.with_columns([
-    pl.lit(datetime.now()).alias("_ingested_at"),
-    pl.lit("raw_visits.csv").alias("_source_file")
-])
-    with duckdb.connect(DB_PATH) as con:
-        con.execute("CREATE OR REPLACE TABLE STAGE_VISITS AS SELECT * FROM df")
-    return "STAGE_VISITS"
-
-@task(name="Stage doctors")
-def stage_doctors():
-    df = pl.read_csv("data/raw_doctors.csv")
-    df = df.with_columns([
-    pl.lit(datetime.now()).alias("_ingested_at"),
-    pl.lit("raw_doctors.csv").alias("_source_file")
-])
-    with duckdb.connect(DB_PATH) as con:
-        con.execute("CREATE OR REPLACE TABLE STAGE_DOCTORS AS SELECT * FROM df")
-    return "STAGE_DOCTORS"
+#Task for reading from csv-files and staging the data in DuckDB.
+@task(name="Stage tables from csv-files")
+def stage_tables():
+    for table_name, csv_path in dict_csv_tables.items():
+        df = pl.read_csv(csv_path)
+        df = df.with_columns([
+            pl.lit(datetime.now()).alias("_ingested_at"), #Adding metadata columns to track when the data was ingested
+            pl.lit(csv_path).alias("_source_file") #Adding metadata columns to track the source file for each record
+        ])
+        df = pl.read_csv(csv_path, null_values=["NULL", "null", ""]) #Handling null values in the CSV files by specifying them during the read operation. This ensures that they are correctly interpreted as nulls in the resulting DataFrame.
+        with duckdb.connect(DB_PATH) as con:
+            con.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM df")
+   
+    return list(dict_csv_tables.keys())
 
 # --- FLOW ---
 
 @flow(name="Healthcare End-to-End Pipeline")
 def run_healthcare_pipeline():
-    # 1. Kör alla inläsningar (E & L)
-    # Vi samlar resultaten för att visa Prefect att nästa steg beror på dessa
-    c = stage_clinics()
-    p = stage_patients()
-    d = stage_diagnosis()
-    dt = stage_date()
-    v = stage_visits()
-    doc = stage_doctors()  
+    # 1. Run all data ingestion tasks in parallel (P) and wait for them to complete
+    c = stage_tables.submit()
 
-    # 2. Kör dbt Transformation (T)
-    # Vi skickar med wait_for för att garantera att dbt inte startar 
-    # förrän ALLA inläsningar är helt klara (Success)
-    run_dbt(wait_for=[c, p, d, dt, v, doc])
+    # 2. Run dbt (T) after all data ignestion tasks are completed
+    run_dbt(wait_for=[c])
 
 if __name__ == "__main__":
-    # Istället för att bara köra flowet en gång, "serverar" vi det nu
     run_healthcare_pipeline.serve(
         name="healthcare-daily-deployment",
-        cron="0 6 * * *",  # Körs varje morgon kl 06:00
         tags=["production", "healthcare"],
-        description="Laddar 160M rader och bygger guld-stjärnan i dbt."
+        description="Data ingestion from CSV-files"
     )
