@@ -1,3 +1,5 @@
+
+
 import polars as pl
 import duckdb
 import dlt
@@ -11,12 +13,12 @@ DB_PATH = "healthcare.db"
 # --- TASKS ---
 
 dict_csv_tables = {
-    "stage_clinics": "data/raw_clinics.csv",
-    "stage_patients": "data/raw_patients.csv",
-    "stage_diagnosis": "data/raw_diagnosis.csv",
-    "stage_date": "data/raw_date.csv",
-    "stage_visits": "data/raw_visits.csv",
-    "stage_doctors": "data/raw_doctors.csv"
+    "stage_clinics": {"path": "data/raw_clinics.csv", "pk": "clinic_id"},
+    "stage_patients": {"path": "data/raw_patients.csv", "pk": "patient_id"},
+    "stage_diagnosis": {"path": "data/raw_diagnosis.csv", "pk": "diag_code"},
+    "stage_date": {"path": "data/raw_date.csv", "pk": "date_key"},
+    "stage_visits": {"path": "data/raw_visits.csv", "pk": "visit_id"},
+    "stage_doctors": {"path": "data/raw_doctors.csv", "pk": "doctor_id"}
 }
 #Task for reading from csv-files and staging the data in DuckDB.
 
@@ -31,18 +33,19 @@ def stage_tables():
             dataset_name="main"  
         )
 
-        for table_name, csv_path in dict_csv_tables.items():
-            df = pl.read_csv(csv_path, null_values=["NULL", "null", ""])
+        for table_name, config in dict_csv_tables.items():
+            df = pl.read_csv(config["path"], null_values=["NULL", "null", ""])
             
             df = df.with_columns([
                 pl.lit(datetime.now()).alias("_ingested_at"),
-                pl.lit(csv_path).alias("_source_file")
+                pl.lit(config["path"]).alias("_source_file")
             ])
 
             load_info = pipeline.run(
                 df, 
                 table_name=table_name, 
-                write_disposition="replace" 
+                write_disposition="merge", 
+                primary_key=config["pk"]  # <--- Här hämtas rätt ID dynamiskt!
             )
             print(f"Loaded {table_name}: {load_info}")
 
