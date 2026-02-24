@@ -1,7 +1,7 @@
 version: 2
 
 sources:
-  - name: healthcare_source
+  - name: csv
     schema: main 
     description: "Rådata som laddats in i DuckDB via dlt/Prefect"
     tables:
@@ -35,3 +35,10 @@ sources:
 
       - name: stage_date
         description: "Datumdimension"
+
+  - name: sql_external_sources
+    schema: main 
+    description: "Rådata som laddats in i DuckDB via dlt/Prefect"
+    tables:
+      - name: stage_diagnosis_descriptions  # dlt sparar oftast i gemener
+        description: "Råa diagnosbeskrivningar"
