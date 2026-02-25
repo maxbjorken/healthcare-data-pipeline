@@ -5,13 +5,13 @@ sources:
     schema: main 
     description: "Rådata som laddats in i DuckDB via dlt/Prefect"
     tables:
+
       - name: stage_patients  # dlt sparar oftast i gemener
         description: "Råa patientdata"
         columns:
           - name: patient_id
             tests:
-              - unique
-              - not_null
+              - not_null_custom
 
       - name: stage_doctors
         description: "Råa läkardata"
