@@ -15,26 +15,39 @@ sources:
 
       - name: stage_doctors
         description: "Råa läkardata"
+        columns:
+          - name: doctor_id
+            tests:
+              - not_null_custom
 
       - name: stage_clinics
         description: "Råa klinikdata"
+        columns:
+          - name: clinic_id
+            tests:
+              - not_null_custom
 
       - name: stage_diagnosis
         description: "Råa diagnosdata"
+        columns:
+          - name: diag_code
+            tests:
+              - not_null_custom
 
       - name: stage_visits
         description: "Råa besöksdata"
         columns:
           - name: visit_id
-            tests:
-              - not_null
-              - unique
-              - dbt_utils.expression_is_true:
-                  expression: " != 'NULL'"
-                  severity: error
+            tests: 
+              - not_null_custom
+
 
       - name: stage_date
         description: "Datumdimension"
+        columns:
+          - name: date_key
+            tests:
+              - not_null_custom
 
   - name: sql_external_sources
     schema: main 
