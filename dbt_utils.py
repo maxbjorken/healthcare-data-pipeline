@@ -1,15 +1,18 @@
-# utils.py exempel
 import subprocess
-from prefect import task
+from prefect import task, get_run_logger
 
 @task(name="dbt Build")
 def run_dbt():
-    # Vi använder 'dbt build' eftersom det kör både RUN och TEST
+    logger = get_run_logger()
+    
     result = subprocess.run(["dbt", "build"], capture_output=True, text=True)
+    
+    if result.stdout:
+        logger.info(result.stdout)
+    
     if result.returncode == 0:
-        print("dbt success!")
-        print(result.stdout)
+        logger.info("✅ Dbt build success!")
     else:
-        print("dbt failed!")
-        print(result.stderr)
-        raise Exception("dbt build failed")
+        logger.error("❌ Dbt build failed!")
+        logger.error(result.stderr)
+        raise Exception("Dbt build failed")
