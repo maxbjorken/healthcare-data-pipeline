@@ -1,5 +1,5 @@
 Select 
-patient_id as 'Patiend_ID',
+patient_id as 'Patient_ID',
 gender as 'Gender',
 last_name as 'Last_Name',
 first_name as 'First_Name',
