@@ -17,7 +17,7 @@ def run_query():
 
     QUERY2 = """
             SELECT 
-                * from stg_hapi_fihr_patients
+                * from int_HF_PATIENTS
             LIMIT 5;
                 """
 
