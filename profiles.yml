@@ -4,8 +4,8 @@ healthcare_profile:
   outputs:
     dev:
       type: duckdb
-      # Ändra från /app/healthcare.db till detta:
-      path: healthcare.db 
+      path: hapi_fhir.db
+      schema: main
       extensions:
         - parquet
         - httpfs
