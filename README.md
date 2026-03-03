@@ -1,13 +1,15 @@
 # Pipeline for healthcare-data.
 
+## Updated project for working with HAPI FIHR data.
+
 ## Architecture:
-### Dlt for transfering data
+### dlt for transfering data
 ### Polars for dataingestion
 ### DuckDB for database
-### Dbt for data transformation within the database
+### dbt for data transformation within the database
 ### Prefect for orchestration
 
-![DBT Data lineage](assets/lineage-graph.png)
+
 
 
 ## Getting Started
