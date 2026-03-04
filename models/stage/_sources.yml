@@ -10,3 +10,10 @@ sources:
           - name: patient_id
             tests:
               - not_null
+
+      - name: raw_encounters
+        description: "Råa encounterdata från HAPI FHIR"
+        columns:
+          - name: encounter_id
+            tests:
+              - not_null

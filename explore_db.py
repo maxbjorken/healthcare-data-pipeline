@@ -16,9 +16,8 @@ def run_query():
     
 
     QUERY2 = """
-            SELECT 
-                * from int_HF_PATIENTS
-            LIMIT 5;
+            Select * FROM fct_encounters
+            LIMIT 20;
                 """
 
     print("Kör fråga mot hapi_fhir.db...\n")
