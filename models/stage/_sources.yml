@@ -17,3 +17,9 @@ sources:
           - name: encounter_id
             tests:
               - not_null
+      - name: raw_conditions
+        description: "Råa conditiondata från HAPI FHIR"
+        columns:
+          - name: condition_id
+            tests:
+              - not_null
