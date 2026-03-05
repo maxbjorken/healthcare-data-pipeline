@@ -4,13 +4,12 @@ import json
 
 resources = ["Encounter", "Patient", "Condition"]
 
-def ingest_fhir_tables():
+def ingest_fhir_tables(db_path="hapi_fhir.db"):
 
-    db_name = "hapi_fhir.db"
+    db_name = db_path
     for res in resources:
         
         url = f"http://hapi.fhir.org/baseR4/{res}?_count=1000&_sort=-_lastUpdated"
-
 
         print(f"Hämtar data från: {url}")
         
