@@ -1,6 +1,7 @@
 SELECT 
     condition_id,
     REGEXP_REPLACE(raw_json->>'$.subject.reference', '^(Patient/|#)', '') AS patient_id,
+    REGEXP_REPLACE(raw_json->>'$.encounter.reference', '^(Encounter/|#)', '') AS encounter_id,
     raw_json->>'$.clinicalStatus.coding[0].code' AS clinical_status_code,
     raw_json->>'$.clinicalStatus.coding[0].display' AS clinical_status_display,
     raw_json->>'$.verificationStatus.coding[0].code' AS verification_status_code,

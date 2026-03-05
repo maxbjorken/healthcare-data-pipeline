@@ -1,6 +1,7 @@
 {{ config(materialized='table') }}
 
 Select 
+md5(patient_id) AS Patient_PK,
 Patient_ID,
 Gender,
 Last_Name,

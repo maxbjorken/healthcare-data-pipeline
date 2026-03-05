@@ -16,7 +16,7 @@ def run_query():
     
 
     QUERY2 = """
-            Select * FROM fct_encounters
+            Select * FROM stg_hapi_fhir_conditions
             LIMIT 20;
                 """
 
