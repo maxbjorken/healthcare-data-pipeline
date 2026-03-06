@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: fct_conditions
+    columns:
+      - name: condition_sk
+        tests:
+          - unique
+          - not_null
+      - name: patient_sk
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_patients')
+              field: patient_PK
+              config:
+                severity: warn
+
+  - name: fct_encounters
+    columns:
+      - name: encounter_sk
+        tests:
+          - unique
+          - not_null
