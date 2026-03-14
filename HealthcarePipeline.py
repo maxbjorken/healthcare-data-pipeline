@@ -26,7 +26,7 @@ def task_fhir_ingestion():
 @flow(name="Healthcare End-to-End Pipeline")
 def run_healthcare_pipeline():
     # 1. Run all data ingestion tasks in parallel (P) and wait for them to complete
-    #  c = stage_tables.submit() not in use right now
+    #  c = stage_tables.submit() not in use right now (Use for staging tables from SQL and CSV sources)
     a = task_fhir_ingestion.submit()
 
     # 2. Run dbt (T) after all data ignestion tasks are completed
@@ -36,5 +36,5 @@ if __name__ == "__main__":
     run_healthcare_pipeline.serve(
         name="healthcare-daily-deployment",
         tags=["production", "healthcare"],
-        description="Data ingestion from CSV-files"
+        description="Data ingestion from FHIR API"
     )
